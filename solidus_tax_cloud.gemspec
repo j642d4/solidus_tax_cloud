@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.summary     = 'Solidus extension providing Tax Cloud services'
   s.description = 'Solidus extension for providing Tax Cloud services in USA.'
 
-  s.required_ruby_version = '>= 2.2.2'
+  s.required_ruby_version = '>= 2.4.0'
 
   s.add_dependency 'solidus_api'
   s.add_dependency 'solidus_backend'
@@ -20,16 +20,17 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'savon', '~> 2.5.1'
   s.add_runtime_dependency 'tax_cloud', '~> 0.3.0'
 
-  s.add_development_dependency 'solidus_frontend'
   s.add_development_dependency 'capybara'
-  s.add_development_dependency 'poltergeist'
   s.add_development_dependency 'coffee-rails'
   s.add_development_dependency 'database_cleaner'
-  s.add_development_dependency 'factory_girl_rails', '~> 4.2'
+  s.add_development_dependency 'factory_bot_rails'
   s.add_development_dependency 'ffaker'
   s.add_development_dependency 'generator_spec'
-  s.add_development_dependency 'rspec-rails',        '~> 2.13'
+  s.add_development_dependency 'poltergeist'
+  s.add_development_dependency 'pry'
+  s.add_development_dependency 'rspec-rails'
   s.add_development_dependency 'sass-rails'
   s.add_development_dependency 'selenium-webdriver'
+  s.add_development_dependency 'solidus_frontend'
   s.add_development_dependency 'sqlite3'
 end

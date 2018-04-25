@@ -3,12 +3,14 @@ Solidus::TaxCloud
 
 Solidus::TaxCloud is a US sales tax extension for Solidus using the Tax Cloud service.
 
+[![Build Status](https://travis-ci.org/solidusio-contrib/solidus_tax_cloud.svg?branch=master)](https://travis-ci.org/solidusio-contrib/solidus_tax_cloud)
+
 TaxCloud Configuration
 -----
 
 1. Create an account with Tax Cloud ([https://taxcloud.net](https://taxcloud.net))...
 
-2. ...and get an `api_login_id` and `api_key`.
+2. ...and get an `api_id` and `api_key`.
 
 3. Go to `Your Account` >> `Tax States`, and turn on sales tax collection for the relevant states in which you want/need to collect sales tax. (**NOTE:** Unless states are explicitly added, TaxCloud will return zero sales tax by default for orders shipping to those states.)
 
@@ -25,8 +27,7 @@ Solidus Configuration
 
   Note that the gem currently uses the Spree namespace internally (as does Solidus itself).
   
-  The `branch` option is important: it should match the version of Solidus you're using.
-  For example, use `v2.0` if you're using the Solidus `v2.0` branch or any of the 2.0.x gem releases.
+  **Update:** Following the guidelines of the Solidus core team, extensions are now meant to be compatible with multiple releases of Solidus. In the past, the branch (`v2.1`) of this extension was meant to match the version of Solidus being used. The new best practice is to use the `master` branch if you are using any version of Solidus from 2.2 onward.
 
 2. Install the gem using Bundler:
   ```ruby
@@ -38,15 +39,23 @@ Solidus Configuration
   bundle exec rails g spree_tax_cloud:install
   ```
 
-4. Restart your server
+4. Create an initializer file with your TaxCloud credentials
+
+**If you are upgrading from version 2.x to version 3.x of this extension, the setting of preferences has changed, and your app will need to be updated accordingly.**
+
+**config/initializers/tax_cloud.rb**
+  ```ruby
+  TaxCloud.configure do |config|
+    config.api_login_id = 'YOUR_TAX_CLOUD_API_ID'
+    config.api_key = 'YOUR_TAX_CLOUD_API_KEY'
+  end
+  ```
+
+5. Restart your server
 
   If your server was running, restart it so that it can find the assets properly.
 
-
-In the Admin section of Solidus, go to Settings > Store > TaxCloud Settings.
-
-Enter your `api_login_id` and `api_key`, and optionally your USPS login.
-You can also configure the default Product TIC and Shipping TIC for TaxCloud to use, although it is recommended to leave the defaults as is: `00000` for product default and `11010` for shipping default.
+In the Admin section of Solidus, within Settings > Store > TaxCloud Settings, you can configure the default Product TIC and Shipping TIC for TaxCloud to use, although it is recommended to leave the defaults as is: `00000` for product default and `11010` for shipping default.
 
 All Products will default to the default product TIC specified here unless they are given an explicit value.
 Specific product-level TICs may be specified per-product in the Products section of the Solidus admin backend. If you are uncertain about the correct TIC for a product (whether it be clothing, books, etc.), taxability code information may be obtained from [Tax Cloud](https://taxcloud.net/tic/default.aspx).
@@ -74,9 +83,7 @@ TODO
 
 Some work on the Solidus:TaxCloud extension is ongoing. Namely:
 
-- [x] Fill out a more complete set of feature specs using the test case scenarios provided by Tax Cloud.
-
-- [ ] Address Validation: Support an address validation step via the Tax Cloud gem (which will fix the one non-passing spec at the moment).
+- [ ] Address Validation: Currently this extension will attempt to validate and correct the destination address (but not the origin) to compute the most accurate tax. However, the corrected address will not be saved in Solidus, and there is no user-facing UI step on the frontend (user specifies a shipping address) or the backend (admin specifies the stock location origin address). Ideally we would want to build out a step in the checkout flow as well as the admininstration backend showing the user the differences in the validated address (typically the zip+4 being added) and asking the user if they would like to update their address accordingly.
 
 - [ ] Split Shipments: Scope Tax Cloud transactions to Shipments rather than Orders, to account for the unusual cases where sales tax depends on the origin address as well as, or instead of, the destination address.
 

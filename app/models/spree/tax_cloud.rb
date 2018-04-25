@@ -1,24 +1,21 @@
 module Spree
   class TaxCloud
-
-    def self.update_config
-      ::TaxCloud.configure do |config|
-        config.api_login_id = Spree::Config.taxcloud_api_login_id
-        config.api_key = Spree::Config.taxcloud_api_key
-        config.usps_username = Spree::Config.taxcloud_usps_user_id
-      end
-    end
-
     def self.transaction_from_order(order)
-      stock_location = order.shipments.first.try(:stock_location) || Spree::StockLocation.active.where("city IS NOT NULL and state_id IS NOT NULL").first
+      stock_location = order.shipments.first.try(:stock_location) || Spree::StockLocation.active.where('city IS NOT NULL and state_id IS NOT NULL').first
       raise Spree.t(:ensure_one_valid_stock_location) unless stock_location
+
+      destination = address_from_spree_address(order.ship_address || order.billing_address)
+      begin
+        destination = destination.verify # Address validation may fail, and that is okay.
+      rescue ::TaxCloud::Errors::ApiError
+      end
 
       transaction = ::TaxCloud::Transaction.new(
         customer_id: order.user_id || order.email,
         order_id: order.number,
         cart_id: order.number,
         origin: address_from_spree_address(stock_location),
-        destination: address_from_spree_address(order.ship_address || order.billing_address)
+        destination: destination
       )
 
       index = -1 # array is zero-indexed
